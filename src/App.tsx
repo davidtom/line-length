@@ -4,8 +4,8 @@ import { Line } from "./Line";
 import LineComponent from "./LineComponent";
 import "./App.css";
 
-// Create a random line between 1 and 10 mm
-const randomLength = Math.random() * 9 + 1; // 1 to 10
+// Create a random line between 1 and 254 mm (10 inches)
+const randomLength = Math.round(Math.random() * 253 + 1);
 const line = new Line(randomLength);
 
 // Log the actual length for testing
@@ -14,7 +14,7 @@ console.log("Actual line length:", line.length, "mm");
 interface Guess {
   value: number;
   correct: boolean;
-  hot: boolean; // within 0.5mm
+  hot: boolean;
 }
 
 function App() {
@@ -31,13 +31,14 @@ function App() {
   const handleGuessSubmit = () => {
     if (currentGuess === "" || guesses.length >= 4 || hasWon) return;
 
-    const numericGuess = parseFloat(currentGuess);
+    const numericGuess = Math.round(parseFloat(currentGuess));
     if (isNaN(numericGuess)) return;
 
     const isCorrect = line.isLength(numericGuess);
-    // Calculate if "hot" - within 0.5mm of the actual length
-    const difference = Math.abs(numericGuess - line.length);
-    const isHot = difference <= 0.5;
+    // Calculate if "hot" - within 15mm of the actual length
+    // For a 1-254mm range, 15mm is about 6% tolerance and gives helpful feedback
+    const difference = Math.abs(numericGuess - Math.round(line.length));
+    const isHot = difference <= 15;
 
     setGuesses([
       ...guesses,
@@ -76,14 +77,20 @@ function App() {
       )}
 
       <h1>Guess the Line Length</h1>
-      <p>How long is this line in millimeters? Round to 1 decimal place.</p>
+      <p>How long is this line in millimeters?</p>
+
+      {isDisabled && (
+        <p className="answer-reveal">
+          The answer was <strong>{Math.round(line.length)} mm</strong>
+        </p>
+      )}
 
       <LineComponent length={line.length} />
 
       <div className="input-container">
         <input
           type="number"
-          step="0.1"
+          step="1"
           value={currentGuess}
           onChange={handleGuessChange}
           onKeyPress={handleKeyPress}
@@ -117,7 +124,7 @@ function App() {
                   className={guess.correct ? "correct-row" : "wrong-row"}
                 >
                   <td>{index + 1}</td>
-                  <td>{guess.value.toFixed(1)}</td>
+                  <td>{guess.value}</td>
                   <td>
                     {guess.correct ? (
                       <span>✅</span>

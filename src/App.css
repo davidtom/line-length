@@ -16,6 +16,17 @@ p {
   margin-bottom: 20px;
 }
 
+.answer-reveal {
+  font-size: 18px;
+  color: #333;
+  margin: 20px 0 10px 0;
+}
+
+.answer-reveal strong {
+  color: #2196f3;
+  font-size: 20px;
+}
+
 .line-container {
   display: flex;
   justify-content: center;
