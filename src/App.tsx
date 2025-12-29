@@ -5,7 +5,7 @@ import LineComponent from "./LineComponent";
 import "./App.css";
 
 // Create a random line between 1 and 254 mm (10 inches)
-const randomLength = Math.round(Math.random() * 253 + 1);
+const randomLength = Math.round(Math.random() * 253 + 1); // 1 to 254
 const line = new Line(randomLength);
 
 // Log the actual length for testing
@@ -14,7 +14,7 @@ console.log("Actual line length:", line.length, "mm");
 interface Guess {
   value: number;
   correct: boolean;
-  hot: boolean;
+  proximity: string; // emoji indicator
 }
 
 function App() {
@@ -28,6 +28,13 @@ function App() {
 
   const hasWon = guesses.some((g) => g.correct);
 
+  const getProximityEmoji = (difference: number): string => {
+    if (difference <= 5) return "🔥🔥🔥"; // Very hot
+    if (difference <= 15) return "🔥🔥"; // Hot
+    if (difference <= 30) return "🔥"; // Warm
+    return "❄️"; // Cold
+  };
+
   const handleGuessSubmit = () => {
     if (currentGuess === "" || guesses.length >= 4 || hasWon) return;
 
@@ -35,14 +42,12 @@ function App() {
     if (isNaN(numericGuess)) return;
 
     const isCorrect = line.isLength(numericGuess);
-    // Calculate if "hot" - within 15mm of the actual length
-    // For a 1-254mm range, 15mm is about 6% tolerance and gives helpful feedback
     const difference = Math.abs(numericGuess - Math.round(line.length));
-    const isHot = difference <= 15;
+    const proximity = getProximityEmoji(difference);
 
     setGuesses([
       ...guesses,
-      { value: numericGuess, correct: isCorrect, hot: isHot },
+      { value: numericGuess, correct: isCorrect, proximity },
     ]);
     setCurrentGuess("");
 
@@ -129,7 +134,7 @@ function App() {
                     {guess.correct ? (
                       <span>✅</span>
                     ) : (
-                      <span>{guess.hot ? "🔥" : "❄️"}</span>
+                      <span>{guess.proximity}</span>
                     )}
                   </td>
                 </tr>
