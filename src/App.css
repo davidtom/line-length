@@ -1,38 +1,169 @@
 .App {
   text-align: center;
+  padding: 50px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1 {
+  color: #333;
+  margin-bottom: 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+p {
+  color: #666;
+  margin-bottom: 20px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.line-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  min-height: 100px;
+  margin: 40px 0;
+}
+
+.input-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+input[type="number"] {
+  width: 150px;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+input[type="number"]:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.guess-button {
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 600;
   color: white;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.App-link {
-  color: #61dafb;
+.guess-button:hover:not(:disabled) {
+  background-color: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.guess-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.guess-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.refresh-button {
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #2196f3;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 30px;
+}
+
+.refresh-button:hover {
+  background-color: #1976d2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.refresh-button:active {
+  transform: translateY(0);
+}
+
+.guesses-table-container {
+  margin: 30px auto;
+  max-width: 400px;
+}
+
+.guesses-table-container h3 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.guesses-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.guesses-table thead {
+  background-color: #f5f5f5;
+}
+
+.guesses-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 2px solid #ddd;
+}
+
+.guesses-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.guesses-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.correct-row {
+  background-color: #f1f8f4;
+}
+
+.wrong-row {
+  background-color: #fef1f0;
+}
+
+.guesses-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.correct-row:hover {
+  background-color: #e8f5e9 !important;
+}
+
+.wrong-row:hover {
+  background-color: #ffebee !important;
+}
+
+.game-over {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
 }
