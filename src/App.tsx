@@ -4,12 +4,12 @@ import { Line } from "./Line";
 import LineComponent from "./LineComponent";
 import "./App.css";
 
-// Create a random line between 1 and 254 mm (10 inches)
-const randomLength = Math.round(Math.random() * 253 + 1); // 1 to 254
+// Create a random line between 1 and 50 mm (approximately 2 inches)
+const randomLength = Math.round(Math.random() * 49 + 1); // 1 to 50
 const line = new Line(randomLength);
 
 // Log the actual length for testing
-console.log("Actual line length:", line.length, "mm");
+console.log("Line length:", line.length, "mm");
 
 interface Guess {
   value: number;
