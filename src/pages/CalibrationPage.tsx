@@ -8,24 +8,25 @@ const CalibrationPage: React.FC = () => {
   const navigate = useNavigate();
   const { ppi, savePpi } = useCalibration();
 
-  // Use current PPI to calculate initial pixel width
-  const initialPixelWidth = Math.round(ppi * CREDIT_CARD_WIDTH_INCHES);
-  const [pixelWidth, setPixelWidth] = useState(initialPixelWidth);
+  // Flip orientation: use HEIGHT as the main dimension (vertical on phone)
+  // Use current PPI to calculate initial pixel height
+  const initialPixelHeight = Math.round(ppi * CREDIT_CARD_WIDTH_INCHES);
+  const [pixelHeight, setPixelHeight] = useState(initialPixelHeight);
 
-  // Calculate height based on credit card aspect ratio
-  const pixelHeight =
-    pixelWidth * (CREDIT_CARD_HEIGHT_INCHES / CREDIT_CARD_WIDTH_INCHES);
+  // Calculate width based on credit card aspect ratio (flipped)
+  const pixelWidth =
+    pixelHeight * (CREDIT_CARD_HEIGHT_INCHES / CREDIT_CARD_WIDTH_INCHES);
 
   const handleDecrease = () => {
-    setPixelWidth((w) => Math.max(50, w - 1));
+    setPixelHeight((h) => Math.max(50, h - 1));
   };
 
   const handleIncrease = () => {
-    setPixelWidth((w) => Math.min(1000, w + 1));
+    setPixelHeight((h) => Math.min(1000, h + 1));
   };
 
   const handleSave = () => {
-    const calculatedPpi = pixelWidth / CREDIT_CARD_WIDTH_INCHES;
+    const calculatedPpi = pixelHeight / CREDIT_CARD_WIDTH_INCHES;
     savePpi(calculatedPpi);
     navigate("/");
   };
@@ -34,12 +35,12 @@ const CalibrationPage: React.FC = () => {
     <div className="calibration-page">
       <h1>Screen Calibration</h1>
       <p className="instructions">
-        Place a credit card in the top-left corner of your screen and adjust the
-        box until it matches the card's outline exactly.
+        Hold a credit card <strong>vertically</strong> against the box and
+        adjust until it matches.
       </p>
       <p className="card-dimensions">
-        Standard credit card: {CREDIT_CARD_WIDTH_INCHES}" wide ×{" "}
-        {CREDIT_CARD_HEIGHT_INCHES}" tall
+        Standard credit card: {CREDIT_CARD_WIDTH_INCHES}" tall ×{" "}
+        {CREDIT_CARD_HEIGHT_INCHES}" wide
       </p>
 
       <div className="calibration-container">
@@ -56,7 +57,7 @@ const CalibrationPage: React.FC = () => {
         <button onClick={handleDecrease} className="adjust-button">
           -
         </button>
-        <span className="size-display">{Math.round(pixelWidth)}px</span>
+        <span className="size-display">{Math.round(pixelHeight)}px</span>
         <button onClick={handleIncrease} className="adjust-button">
           +
         </button>

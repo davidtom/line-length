@@ -33,15 +33,19 @@
   height: 60vh;
   margin-bottom: 30px;
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: 20px;
+  justify-content: center;
+  align-items: center;
 }
 
 .calibration-box {
-  border: 3px solid #333;
-  background-color: transparent;
+  position: relative;
+  background-color: rgba(33, 150, 243, 0.05);
   box-sizing: border-box;
+  /* Solid borders for fixed edges, dashed blue for adjustable edges */
+  border-top: 3px solid #666;
+  border-left: 3px solid #666;
+  border-right: 3px dashed #2196f3;
+  border-bottom: 3px dashed #2196f3;
 }
 
 .controls {
