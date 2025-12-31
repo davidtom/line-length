@@ -1,58 +1,46 @@
 /**
- * Represents a line with a precise length in millimeters.
- * Internally stores length in tenths of a millimeter to avoid floating point errors.
+ * Represents a line with a precise length in inches.
+ * Internally stores length in eighths of an inch to avoid floating point errors.
  */
 export class Line {
-  private lengthInTenths: number;
+  private lengthInEighths: number;
 
   /**
-   * Creates a new Line with the specified length in millimeters
-   * @param lengthInMm - The length in millimeters
+   * Creates a new Line with the specified length in inches
+   * @param lengthInInches - The length in inches
    */
-  constructor(lengthInMm: number) {
-    // Store as tenths of mm (integers) to maintain precision
-    this.lengthInTenths = Math.round(lengthInMm * 10);
+  constructor(lengthInInches: number) {
+    // Store as eighths of inches (integers) to maintain precision
+    this.lengthInEighths = Math.round(lengthInInches * 8);
   }
 
   /**
-   * Gets the length of the line in millimeters
+   * Gets the length of the line in inches
    */
   get length(): number {
-    return this.lengthInTenths / 10;
+    return this.lengthInEighths / 8;
   }
 
   /**
-   * Sets the length of the line in millimeters
+   * Sets the length of the line in inches
    */
-  set length(lengthInMm: number) {
-    this.lengthInTenths = Math.round(lengthInMm * 10);
+  set length(lengthInInches: number) {
+    this.lengthInEighths = Math.round(lengthInInches * 8);
   }
 
   /**
-   * Adds length to the line
-   * @param mmToAdd - Millimeters to add
-   */
-  addLength(mmToAdd: number): void {
-    this.lengthInTenths += Math.round(mmToAdd * 10);
-  }
-
-  /**
-   * Checks if the line's length matches the estimate when rounded to one decimal place
-   * @param estimate - The estimated length in millimeters
-   * @returns true if the estimate matches the line's length (rounded to 1 decimal)
+   * Checks if the line's length matches the estimate
+   * @param estimate - The estimated length in inches
+   * @returns true if the estimate matches the line's length (to the nearest 1/8")
    */
   isLength(estimate: number): boolean {
-    const roundedActual = Math.round(this.lengthInTenths) / 10;
-    const roundedEstimate = Math.round(estimate * 10) / 10;
-    return roundedActual === roundedEstimate;
+    const estimateInEighths = Math.round(estimate * 8);
+    return this.lengthInEighths === estimateInEighths;
   }
 }
 
 // Example usage:
-// const line = new Line(10.5);
-// console.log(line.length); // 10.5
-// line.addLength(0.1);
-// console.log(line.length); // 10.6
-// console.log(line.isLength(10.6)); // true
-// console.log(line.isLength(10.63)); // true (rounds to 10.6)
-// console.log(line.isLength(10.7)); // false
+// const line = new Line(1.375);  // 1 3/8"
+// console.log(line.length); // 1.375
+// console.log(line.isLength(1.375)); // true
+// console.log(line.isLength(1.4)); // false (not on an eighth boundary)

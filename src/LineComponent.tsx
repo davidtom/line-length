@@ -1,15 +1,16 @@
 import React from "react";
+import { useCalibration } from "./hooks/useCalibration";
 
 interface LineComponentProps {
-  length: number; // length in millimeters
+  length: number; // length in inches
 }
 
 const LineComponent: React.FC<LineComponentProps> = ({ length }) => {
-  // Convert mm to pixels at a fixed ratio
-  // Standard conversion: 1 inch = 25.4mm, at 96 DPI: 1 inch = 96 pixels
-  // Therefore: 1mm = 96/25.4 ≈ 3.7795 pixels
-  const MM_TO_PIXELS = 96 / 25.4;
-  const lengthInPixels = length * MM_TO_PIXELS;
+  // Use calibrated PPI (or fallback to 96 DPI)
+  const { ppi } = useCalibration();
+
+  // Convert inches to pixels using actual screen PPI
+  const lengthInPixels = length * ppi;
 
   return (
     <div className="line-container">

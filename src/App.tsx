@@ -1,15 +1,22 @@
 import React, { useState } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
 import { Line } from "./Line";
 import LineComponent from "./LineComponent";
+import CalibrationPage from "./pages/CalibrationPage";
+import { guessSchema, formatFractionalInches } from "./utils/fractionalInches";
+import { useCalibration } from "./hooks/useCalibration";
+import { MAX_LENGTH_INCHES, INCH_INCREMENT } from "./config";
 import "./App.css";
 
-// Create a random line between 1 and 50 mm (approximately 2 inches)
-const randomLength = Math.round(Math.random() * 49 + 1); // 1 to 50
-const line = new Line(randomLength);
+// Create a random line between 1/8" and 2" in 1/8" increments
+// Generate random eighths based on config
+const randomEighths =
+  Math.floor(Math.random() * (MAX_LENGTH_INCHES * INCH_INCREMENT)) + 1;
+const line = new Line(randomEighths / INCH_INCREMENT);
 
 // Log the actual length for testing
-console.log("Line length:", line.length, "mm");
+console.log("Line length:", line.length, "inches");
 
 interface Guess {
   value: number;
@@ -17,47 +24,62 @@ interface Guess {
   proximity: string; // emoji indicator
 }
 
-function App() {
+function GamePage() {
+  const navigate = useNavigate();
+  const { isCalibrated } = useCalibration();
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [validationError, setValidationError] = useState<string>("");
 
   const handleGuessChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentGuess(e.target.value);
+    setValidationError(""); // Clear error when user types
   };
 
   const hasWon = guesses.some((g) => g.correct);
 
   const getProximityEmoji = (difference: number): string => {
-    if (difference <= 5) return "🔥🔥🔥"; // Very hot
-    if (difference <= 15) return "🔥🔥"; // Hot
-    if (difference <= 30) return "🔥"; // Warm
+    if (difference <= 0.25) return "🔥🔥🔥"; // Very hot (within 1/4")
+    if (difference <= 0.5) return "🔥🔥"; // Hot (within 1/2")
+    if (difference <= 1) return "🔥"; // Warm (within 1")
     return "❄️"; // Cold
   };
 
   const handleGuessSubmit = () => {
     if (currentGuess === "" || guesses.length >= 4 || hasWon) return;
 
-    const numericGuess = Math.round(parseFloat(currentGuess));
-    if (isNaN(numericGuess)) return;
+    try {
+      // Parse and validate input using Zod schema
+      const parsedInches = guessSchema.parse(currentGuess);
 
-    const isCorrect = line.isLength(numericGuess);
-    const difference = Math.abs(numericGuess - Math.round(line.length));
-    const proximity = getProximityEmoji(difference);
+      if (parsedInches === null) {
+        setValidationError("Invalid input format");
+        return;
+      }
 
-    setGuesses([
-      ...guesses,
-      { value: numericGuess, correct: isCorrect, proximity },
-    ]);
-    setCurrentGuess("");
+      const isCorrect = line.isLength(parsedInches);
+      const difference = Math.abs(parsedInches - line.length);
+      const proximity = getProximityEmoji(difference);
 
-    // Show confetti if correct
-    if (isCorrect) {
-      setShowConfetti(true);
+      setGuesses([
+        ...guesses,
+        { value: parsedInches, correct: isCorrect, proximity },
+      ]);
+      setCurrentGuess("");
+      setValidationError("");
+
+      // Show confetti if correct
+      if (isCorrect) {
+        setShowConfetti(true);
+      }
+    } catch (error: any) {
+      // Show Zod validation error
+      setValidationError(error.errors?.[0]?.message || "Invalid input");
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleGuessSubmit();
     }
@@ -75,18 +97,18 @@ function App() {
         <Confetti
           width={window.innerWidth}
           height={window.innerHeight}
-          numberOfPieces={500}
+          numberOfPieces={800}
           recycle={false}
-          gravity={0.3}
+          gravity={0.7}
         />
       )}
 
       <h1>Guess the Line Length</h1>
-      <p>How long is this line in millimeters?</p>
+      <p>How long is this line in inches? (Max: 2"; 1/8" increments)</p>
 
       {isDisabled && (
         <p className="answer-reveal">
-          The answer was <strong>{Math.round(line.length)} mm</strong>
+          The answer was <strong>{formatFractionalInches(line.length)}</strong>
         </p>
       )}
 
@@ -94,12 +116,11 @@ function App() {
 
       <div className="input-container">
         <input
-          type="number"
-          step="1"
+          type="text"
           value={currentGuess}
           onChange={handleGuessChange}
-          onKeyPress={handleKeyPress}
-          placeholder="Enter length in mm"
+          onKeyDown={handleKeyDown}
+          placeholder="e.g., 1 3/8"
           disabled={isDisabled}
         />
         <button
@@ -111,6 +132,26 @@ function App() {
         </button>
       </div>
 
+      {validationError && (
+        <p style={{ color: "red", fontSize: "14px", marginTop: "5px" }}>
+          {validationError}
+        </p>
+      )}
+
+      <button
+        onClick={() => navigate("/calibrate")}
+        className="refresh-button"
+        style={{
+          marginTop: "20px",
+          marginBottom: "10px",
+          padding: isCalibrated ? "8px 16px" : "12px 28px",
+          fontSize: isCalibrated ? "14px" : "16px",
+          backgroundColor: isCalibrated ? "#2196f3" : "#f44336",
+        }}
+      >
+        📏 {isCalibrated ? "Recalibrate" : "Calibrate Screen"}
+      </button>
+
       <div className="guesses-table-container">
         <h3>Your Guesses ({guesses.length}/4)</h3>
         {guesses.length > 0 && (
@@ -118,7 +159,7 @@ function App() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Guess (mm)</th>
+                <th>Guess (inches)</th>
                 <th>Result</th>
               </tr>
             </thead>
@@ -129,7 +170,7 @@ function App() {
                   className={guess.correct ? "correct-row" : "wrong-row"}
                 >
                   <td>{index + 1}</td>
-                  <td>{guess.value}</td>
+                  <td>{formatFractionalInches(guess.value)}</td>
                   <td>
                     {guess.correct ? (
                       <span>✅</span>
@@ -154,6 +195,15 @@ function App() {
         🔄 New Line
       </button>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<GamePage />} />
+      <Route path="/calibrate" element={<CalibrationPage />} />
+    </Routes>
   );
 }
 
