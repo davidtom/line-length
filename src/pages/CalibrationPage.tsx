@@ -53,14 +53,12 @@ const CalibrationPage: React.FC = () => {
       </div>
 
       <div className="calibration-container">
-        <div className="line-wrapper">
-          <div
-            className="calibration-line"
-            style={{
-              width: `${pixelLength}px`,
-            }}
-          />
-        </div>
+        <div
+          className="calibration-line"
+          style={{
+            width: `${pixelLength}px`,
+          }}
+        />
       </div>
     </div>
   );
