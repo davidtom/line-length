@@ -2,26 +2,35 @@ import { useState } from "react";
 import { STORAGE_KEY, DEFAULT_PPI } from "../config";
 
 /**
+ * Helper function to get stored PPI from localStorage
+ * @returns The stored PPI value if valid, or null if not found/invalid
+ */
+function getStoredPpi(): number | null {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = parseFloat(stored);
+      // Validate that it's a reasonable PPI value (15-300)
+      if (!isNaN(parsed) && parsed >= 15 && parsed <= 300) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    // localStorage might not be available (private browsing, etc.)
+    console.warn("Failed to read calibration from localStorage:", error);
+  }
+  return null;
+}
+
+/**
  * Custom hook for managing screen calibration (PPI)
  * Reads from and writes to localStorage
  * @returns Object with ppi, savePpi function, and isCalibrated flag
  */
 export function useCalibration() {
   const [ppi, setPpiState] = useState<number>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = parseFloat(stored);
-        // Validate that it's a reasonable PPI value (15-300)
-        if (!isNaN(parsed) && parsed >= 15 && parsed <= 300) {
-          return parsed;
-        }
-      }
-    } catch (error) {
-      // localStorage might not be available (private browsing, etc.)
-      console.warn("Failed to read calibration from localStorage:", error);
-    }
-    return DEFAULT_PPI;
+    const storedPpi = getStoredPpi();
+    return storedPpi ?? DEFAULT_PPI;
   });
 
   /**
@@ -40,9 +49,10 @@ export function useCalibration() {
   };
 
   /**
-   * Whether the screen has been calibrated (not using default)
+   * Whether the screen has been calibrated
+   * True if user has saved a calibration, regardless of the value
    */
-  const isCalibrated = ppi !== DEFAULT_PPI;
+  const isCalibrated = getStoredPpi() !== null;
 
   return { ppi, savePpi, isCalibrated };
 }
