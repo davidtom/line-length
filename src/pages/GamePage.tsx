@@ -137,18 +137,8 @@ const GamePage: React.FC = () => {
         </p>
       )}
 
-      <button
-        onClick={() => navigate("/calibrate")}
-        className="refresh-button"
-        style={{
-          marginTop: "20px",
-          marginBottom: "10px",
-          padding: isCalibrated ? "8px 16px" : "12px 28px",
-          fontSize: isCalibrated ? "14px" : "16px",
-          backgroundColor: isCalibrated ? "#2196f3" : "#f44336",
-        }}
-      >
-        📏 {isCalibrated ? "Recalibrate" : "Calibrate Screen"}
+      <button onClick={handleRefresh} className="refresh-button">
+        🔄 New Line
       </button>
 
       <div className="guesses-table-container">
@@ -190,8 +180,18 @@ const GamePage: React.FC = () => {
         </p>
       )}
 
-      <button onClick={handleRefresh} className="refresh-button">
-        🔄 New Line
+      <button
+        onClick={() => navigate("/calibrate")}
+        className="refresh-button"
+        style={{
+          marginTop: "20px",
+          marginBottom: "10px",
+          padding: isCalibrated ? "8px 16px" : "12px 28px",
+          fontSize: isCalibrated ? "14px" : "16px",
+          backgroundColor: isCalibrated ? "#999" : "#f44336",
+        }}
+      >
+        📏 {isCalibrated ? "Recalibrate" : "Calibrate Screen"}
       </button>
     </div>
   );
