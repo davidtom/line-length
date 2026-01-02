@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
 import { Line } from "../Line";
 import LineComponent from "../LineComponent";
+import GameOverModal from "../components/GameOverModal";
 import { guessSchema, formatFractionalInches } from "../utils/fractionalInches";
 import { useCalibration } from "../hooks/useCalibration";
 import { INCH_INCREMENT, MAX_GUESSES } from "../config";
@@ -48,6 +49,10 @@ const GamePage: React.FC = () => {
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [validationError, setValidationError] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const hasWon = guesses.some((g) => g.correct);
+  const isDisabled = guesses.length >= MAX_GUESSES || hasWon;
 
   // Log the actual line length after mount
   useEffect(() => {
@@ -64,12 +69,17 @@ const GamePage: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Open modal when game ends
+  useEffect(() => {
+    if (isDisabled) {
+      setIsModalOpen(true);
+    }
+  }, [isDisabled]);
+
   const handleGuessChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentGuess(e.target.value);
     setValidationError(""); // Clear error when user types
   };
-
-  const hasWon = guesses.some((g) => g.correct);
 
   const getProximityEmoji = (difference: number): string => {
     if (difference <= 0.25) return "🔥🔥🔥"; // Very hot (within 1/4")
@@ -112,6 +122,8 @@ const GamePage: React.FC = () => {
         console.log({
           result: isCorrect ? "success" : "fail",
           screenWidth: screenWidth,
+          guessCount: newGuesses.length,
+          maxGuesses: MAX_GUESSES,
         });
       }
     } catch (error: any) {
@@ -129,8 +141,6 @@ const GamePage: React.FC = () => {
   const handleRefresh = () => {
     window.location.reload();
   };
-
-  const isDisabled = guesses.length >= MAX_GUESSES || hasWon;
 
   return (
     <div className="game-page">
@@ -153,6 +163,14 @@ const GamePage: React.FC = () => {
           The answer was <strong>{formatFractionalInches(line.length)}</strong>
         </p>
       )}
+
+      <GameOverModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        hasWon={hasWon}
+        answer={line.length}
+        onNewGame={handleRefresh}
+      />
 
       <LineComponent length={line.length} />
 
@@ -218,12 +236,6 @@ const GamePage: React.FC = () => {
           </table>
         )}
       </div>
-
-      {isDisabled && (
-        <p className="game-over">
-          Game Over! {hasWon ? "🎉 You got it!" : "😔 Better luck next time!"}
-        </p>
-      )}
 
       <button
         onClick={() => navigate("/calibrate")}

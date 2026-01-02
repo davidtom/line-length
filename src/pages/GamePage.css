@@ -181,10 +181,3 @@ input[type="number"]:disabled {
 .wrong-row:hover {
   background-color: #ffebee !important;
 }
-
-.game-over {
-  margin-top: 15px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-}
