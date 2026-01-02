@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
+import { analytics, AnalyticsEvent } from "../lib/analytics";
 import { Line } from "../Line";
 import LineComponent from "../LineComponent";
 import GameOverModal from "../components/GameOverModal";
@@ -112,17 +113,27 @@ const GamePage: React.FC = () => {
       setCurrentGuess("");
       setValidationError("");
 
+      // Track individual guess
+      analytics.track(AnalyticsEvent.GuessSubmitted, {
+        guessValue: parsedInches,
+        isCorrect: isCorrect,
+        proximity: proximity,
+        guessNumber: newGuesses.length,
+        difference: difference,
+        actualAnswer: line.length,
+      });
+
       // Show confetti if correct
       if (isCorrect) {
         setShowConfetti(true);
       }
 
-      // Log game outcome when game ends
+      // Track game outcome when game ends
       if (isCorrect || newGuesses.length >= MAX_GUESSES) {
-        console.log({
-          result: isCorrect ? "success" : "fail",
-          screenWidth: screenWidth,
+        analytics.track(AnalyticsEvent.GameCompleted, {
+          result: isCorrect ? "win" : "loss",
           guessCount: newGuesses.length,
+          screenWidth: screenWidth || 0,
           maxGuesses: MAX_GUESSES,
         });
       }
@@ -138,7 +149,10 @@ const GamePage: React.FC = () => {
     }
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = (source: string) => {
+    analytics.track(AnalyticsEvent.NewLine, {
+      source: source,
+    });
     window.location.reload();
   };
 
@@ -169,7 +183,7 @@ const GamePage: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         hasWon={hasWon}
         answer={line.length}
-        onNewGame={handleRefresh}
+        onNewGame={() => handleRefresh("modal")}
       />
 
       <LineComponent length={line.length} />
@@ -198,7 +212,7 @@ const GamePage: React.FC = () => {
         </p>
       )}
 
-      <button onClick={handleRefresh} className="refresh-button">
+      <button onClick={() => handleRefresh("page")} className="refresh-button">
         🔄 New Line
       </button>
 
