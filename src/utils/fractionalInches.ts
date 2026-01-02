@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { INCH_INCREMENT, MAX_LENGTH_INCHES } from "../config";
+import { INCH_INCREMENT } from "../config";
+import { getMaxLineLength } from "./screenDetection";
 
 /**
  * Parses fractional inch input strings
@@ -52,14 +53,23 @@ export function formatFractionalInches(inches: number): string {
 
 /**
  * Zod schema for validating fractional inch guesses
+ * Uses dynamic max length based on screen width
  */
 export const guessSchema = z
   .string()
   .min(1, "Please enter a guess")
-  .refine((val) => {
-    const parsed = parseFractionalInches(val);
-    return parsed !== null && parsed > 0 && parsed <= MAX_LENGTH_INCHES;
-  }, `Must be between 1/${INCH_INCREMENT}" and ${MAX_LENGTH_INCHES}"`)
+  .refine(
+    (val) => {
+      const parsed = parseFractionalInches(val);
+      const maxLength = getMaxLineLength();
+      return parsed !== null && parsed > 0 && parsed <= maxLength;
+    },
+    {
+      error: () => ({
+        message: `Must be between 1/${INCH_INCREMENT}" and ${getMaxLineLength()}"`,
+      }),
+    }
+  )
   .refine((val) => {
     const parsed = parseFractionalInches(val);
     if (parsed === null) return false;

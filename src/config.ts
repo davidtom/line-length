@@ -10,15 +10,15 @@
 export const INCH_INCREMENT = 8;
 
 /**
- * Maximum line length in inches
+ * Default maximum line length in inches (fallback for SSR)
+ * Actual max length is determined dynamically by getMaxLineLength()
  */
-export const MAX_LENGTH_INCHES = 2;
+export const DEFAULT_MAX_LENGTH_INCHES = 2;
 
 /**
- * Standard credit card dimensions (ISO/IEC 7810)
+ * Maximum number of guesses allowed per game
  */
-export const CREDIT_CARD_WIDTH_INCHES = 3.37;
-export const CREDIT_CARD_HEIGHT_INCHES = 2.125;
+export const MAX_GUESSES = 4;
 
 /**
  * Default pixels per inch (96 DPI web standard)

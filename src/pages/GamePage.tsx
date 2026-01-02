@@ -1,21 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
 import { Line } from "../Line";
 import LineComponent from "../LineComponent";
 import { guessSchema, formatFractionalInches } from "../utils/fractionalInches";
 import { useCalibration } from "../hooks/useCalibration";
-import { MAX_LENGTH_INCHES, INCH_INCREMENT } from "../config";
+import { INCH_INCREMENT, MAX_GUESSES } from "../config";
+import { getScreenWidth, getMaxLineLength } from "../utils/screenDetection";
 import "./GamePage.css";
-
-// Create a random line between 1/8" and 2" in 1/8" increments
-// Generate random eighths based on config
-const randomEighths =
-  Math.floor(Math.random() * (MAX_LENGTH_INCHES * INCH_INCREMENT)) + 1;
-const line = new Line(randomEighths / INCH_INCREMENT);
-
-// Log the actual length for testing
-console.log("Line length:", line.length, "inches");
 
 interface Guess {
   value: number;
@@ -26,10 +18,51 @@ interface Guess {
 const GamePage: React.FC = () => {
   const navigate = useNavigate();
   const { isCalibrated } = useCalibration();
+
+  // Screen width state for dynamic max length
+  const [screenWidth, setScreenWidth] = useState<number | null>(
+    getScreenWidth()
+  );
+  const maxLength = getMaxLineLength();
+
+  // Create a random line based on dynamic max length
+  const [line] = useState(() => {
+    const randomEighths =
+      Math.floor(Math.random() * (maxLength * INCH_INCREMENT)) + 1;
+    return new Line(randomEighths / INCH_INCREMENT);
+  });
+
+  // Calculate display max: prefer screen max, but bump up if line exceeds it
+  const getDisplayMax = (): number => {
+    const screenMax = getMaxLineLength();
+    // If line fits within screen max, show screen max (no hints!)
+    if (line.length <= screenMax) return screenMax;
+    // Line exceeds screen max (window was resized), show next valid breakpoint
+    if (line.length <= 2) return 2;
+    if (line.length <= 4) return 4;
+    return 6;
+  };
+  const displayMax = getDisplayMax();
+
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [validationError, setValidationError] = useState<string>("");
+
+  // Log the actual line length after mount
+  useEffect(() => {
+    console.log("Line length:", line.length, "inches");
+  }, [line.length]);
+
+  // Add resize listener to update screen width
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(getScreenWidth());
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleGuessChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentGuess(e.target.value);
@@ -46,7 +79,7 @@ const GamePage: React.FC = () => {
   };
 
   const handleGuessSubmit = () => {
-    if (currentGuess === "" || guesses.length >= 4 || hasWon) return;
+    if (currentGuess === "" || guesses.length >= MAX_GUESSES || hasWon) return;
 
     try {
       // Parse and validate input using Zod schema
@@ -61,16 +94,25 @@ const GamePage: React.FC = () => {
       const difference = Math.abs(parsedInches - line.length);
       const proximity = getProximityEmoji(difference);
 
-      setGuesses([
+      const newGuesses = [
         ...guesses,
         { value: parsedInches, correct: isCorrect, proximity },
-      ]);
+      ];
+      setGuesses(newGuesses);
       setCurrentGuess("");
       setValidationError("");
 
       // Show confetti if correct
       if (isCorrect) {
         setShowConfetti(true);
+      }
+
+      // Log game outcome when game ends
+      if (isCorrect || newGuesses.length >= MAX_GUESSES) {
+        console.log({
+          result: isCorrect ? "success" : "fail",
+          screenWidth: screenWidth,
+        });
       }
     } catch (error: any) {
       // Show Zod validation error
@@ -88,7 +130,7 @@ const GamePage: React.FC = () => {
     window.location.reload();
   };
 
-  const isDisabled = guesses.length >= 4 || hasWon;
+  const isDisabled = guesses.length >= MAX_GUESSES || hasWon;
 
   return (
     <div className="game-page">
@@ -103,7 +145,8 @@ const GamePage: React.FC = () => {
       )}
 
       <h1>Guess the Line Length</h1>
-      <p>How long is this line in inches? (Max: 2"; 1/8" increments)</p>
+      <p>How long is this line in inches? (1/8" increments)</p>
+      <p className="max-length-hint">Max: {displayMax}"</p>
 
       {isDisabled && (
         <p className="answer-reveal">
@@ -142,7 +185,9 @@ const GamePage: React.FC = () => {
       </button>
 
       <div className="guesses-table-container">
-        <h3>Your Guesses ({guesses.length}/4)</h3>
+        <h3>
+          Your Guesses ({guesses.length}/{MAX_GUESSES})
+        </h3>
         {guesses.length > 0 && (
           <table className="guesses-table">
             <thead>
