@@ -157,12 +157,14 @@ const GamePage: React.FC = () => {
     window.location.reload();
   };
 
+  const remainingGuesses = MAX_GUESSES - guesses.length;
+
   return (
     <div className="game-page">
       {showConfetti && (
         <DirectionalConfetti
           direction="center"
-          numberOfPieces={800}
+          numberOfPieces={1000 * (remainingGuesses + 1)}
           gravity={1}
           recycle={false}
         />
