@@ -5,10 +5,10 @@ import { analytics, AnalyticsEvent } from "../lib/analytics";
 import { Line } from "../lib/Line";
 import LineComponent from "../components/LineComponent";
 import GameOverModal from "../components/GameOverModal";
-import { guessSchema, formatFractionalInches } from "../utils/fractionalInches";
+import { guessSchema, formatFractionalInches } from "../lib/fractionalInches";
 import { useCalibration } from "../hooks/useCalibration";
 import { INCH_INCREMENT, MAX_GUESSES } from "../lib/config";
-import { getScreenWidth, getMaxLineLength } from "../utils/screenDetection";
+import { getScreenWidth, getMaxLineLength } from "../lib/screenDetection";
 import "./GamePage.css";
 
 interface Guess {

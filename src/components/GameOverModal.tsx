@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
-import { formatFractionalInches } from '../utils/fractionalInches'
+import { formatFractionalInches } from '../lib/fractionalInches'
 import './GameOverModal.css'
 
 interface GameOverModalProps {

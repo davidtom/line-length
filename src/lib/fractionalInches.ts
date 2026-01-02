@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { INCH_INCREMENT } from "../lib/config";
+import { INCH_INCREMENT } from "./config";
 import { getMaxLineLength } from "./screenDetection";
 
 /**
