@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Confetti from "react-confetti";
 import { analytics, AnalyticsEvent } from "../lib/analytics";
 import { Line } from "../lib/Line";
 import LineComponent from "../components/LineComponent";
 import GameOverModal from "../components/GameOverModal";
+import DirectionalConfetti from "../components/DirectionalConfetti";
+import EasterEgg from "../components/EasterEgg";
 import { guessSchema, formatFractionalInches } from "../lib/fractionalInches";
 import { useCalibration } from "../hooks/useCalibration";
 import { INCH_INCREMENT, MAX_GUESSES } from "../lib/config";
@@ -159,14 +160,15 @@ const GamePage: React.FC = () => {
   return (
     <div className="game-page">
       {showConfetti && (
-        <Confetti
-          width={window.innerWidth}
-          height={window.innerHeight}
+        <DirectionalConfetti
+          direction="center"
           numberOfPieces={800}
+          gravity={1}
           recycle={false}
-          gravity={0.7}
         />
       )}
+
+      <EasterEgg />
 
       <h1>Guess the Line Length</h1>
       <p>How long is this line in inches? (1/8" increments)</p>
