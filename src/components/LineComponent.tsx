@@ -1,5 +1,5 @@
 import React from "react";
-import { useCalibration } from "./hooks/useCalibration";
+import { useCalibration } from "../hooks/useCalibration";
 
 interface LineComponentProps {
   length: number; // length in inches

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { STORAGE_KEY, DEFAULT_PPI } from "../config";
+import { STORAGE_KEY, DEFAULT_PPI } from "../lib/config";
 
 /**
  * Helper function to get stored PPI from localStorage

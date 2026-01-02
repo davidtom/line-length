@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
 import { analytics, AnalyticsEvent } from "../lib/analytics";
-import { Line } from "../Line";
-import LineComponent from "../LineComponent";
+import { Line } from "../lib/Line";
+import LineComponent from "../components/LineComponent";
 import GameOverModal from "../components/GameOverModal";
 import { guessSchema, formatFractionalInches } from "../utils/fractionalInches";
 import { useCalibration } from "../hooks/useCalibration";
-import { INCH_INCREMENT, MAX_GUESSES } from "../config";
+import { INCH_INCREMENT, MAX_GUESSES } from "../lib/config";
 import { getScreenWidth, getMaxLineLength } from "../utils/screenDetection";
 import "./GamePage.css";
 
