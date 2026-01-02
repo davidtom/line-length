@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { formatFractionalInches } from '../utils/fractionalInches'
 import './GameOverModal.css'
@@ -17,6 +18,18 @@ export default function GameOverModal({
   answer,
   onNewGame,
 }: GameOverModalProps) {
+  // Handle Enter key to trigger New Line
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && isOpen) {
+        onNewGame()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onNewGame])
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="modal-dialog">
       {/* Backdrop */}
